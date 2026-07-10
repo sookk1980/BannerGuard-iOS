@@ -1,0 +1,13 @@
+# Xcode
+.DS_Store
+*.swp
+*.xcuserdatad
+*.xcodeproj/project.xcworkspace
+*.xcworkspace
+xcuserdata
+
+# Firebase
+GoogleService-Info.plist
+
+# Build
+build/
