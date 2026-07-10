@@ -2,20 +2,34 @@ import SwiftUI
 import FirebaseAuth
 import GoogleSignIn
 import AuthenticationServices
+import FirebaseFirestore
 
 class AuthViewModel: ObservableObject {
     @Published var email = ""
     @Published var password = ""
     @Published var isAuthenticated = false
+    @Published var isAdmin = false
     @Published var errorMessage: String?
     
     init() {
-        isAuthenticated = Auth.auth().currentUser != nil
+        if let user = Auth.auth().currentUser {
+            isAuthenticated = true
+            checkAdminStatus(user.uid)
+        }
     }
     
-    func signIn() { /* implementation */ }
-    func signUp() { /* implementation */ }
-    func signInWithGoogle() { /* implementation */ }
-    func handleAppleSignIn(_ result: Result<ASAuthorization, Error>) { /* implementation */ }
-    func signOut() { /* implementation */ }
+    private func checkAdminStatus(_ uid: String) {
+        Firestore.firestore().collection("users").document(uid).getDocument { [weak self] snapshot, _ in
+            if let data = snapshot?.data(), let isAdmin = data["isAdmin"] as? Bool {
+                self?.isAdmin = isAdmin
+            }
+        }
+    }
+    
+    /* signIn, signUp, SSO methods... */
+    func signOut() {
+        try? Auth.auth().signOut()
+        isAuthenticated = false
+        isAdmin = false
+    }
 }
